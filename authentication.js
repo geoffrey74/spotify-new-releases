@@ -1,5 +1,5 @@
 import * as dotenv from 'dotenv';
-import request from 'request';
+import got from 'got';
 import { stringify } from 'querystring';
 
 dotenv.config();
@@ -34,7 +34,7 @@ export function login (req, res) {
         }));
 };
 
-export function callback (req, res) {
+export async function callback (req, res) {
     var storedState = req.cookies ? req.cookies[stateKey] : null;
 
     if (req.query.state === null || req.query.state !== storedState) {
@@ -43,25 +43,30 @@ export function callback (req, res) {
     }
 
     res.clearCookie(stateKey);
+
     var authOptions = {
-        url: 'https://accounts.spotify.com/api/token',
         form: {
             code: req.query.code || null,
             redirect_uri: redirect_uri,
             grant_type: 'authorization_code'
         },
         headers: {
-            'Authorization': 'Basic ' + (new Buffer.from(client_id + ':' + client_secret).toString('base64'))
-        },
-        json: true
+            'Authorization': 'Basic ' + (new Buffer.from(client_id + ':' + client_secret).toString('base64')),
+            'content-type': 'application/x-www-form-urlencoded',
+        }
     };
 
-    request.post(authOptions, function (error, response, body) {
-        if (!error && response.statusCode === 200) {
-            res.cookie('auth_token', body.access_token);
+    let url = 'https://accounts.spotify.com/api/token';
+
+    try {
+        let response = await got.post(url, authOptions);
+        if (response.statusCode === 200) {
+            res.cookie('auth_token', JSON.parse(response.body).access_token);
             res.redirect('/newreleases');
         } else {
-            console.error(`Auth error: ${JSON.stringify(error)}`);
+            console.log(`Auth error: ${JSON.stringify(response.body)}`);
         }
-    });
+    } catch (ex) {
+        console.error(`Auth exception: ${JSON.stringify(ex)}`);
+    }
 }

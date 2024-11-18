@@ -1,15 +1,13 @@
 import express from 'express';
+import {json} from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
-import favicon from 'serve-favicon';
 import path from 'path';
 
 import { getArtists } from './artists.js';
 import { getAllReleases } from './albums.js';
 import { getPlaylistTracks, addTracksToPlaylist } from './playlists.js';
 import { login, callback } from './authentication.js';
-import { service } from './service.js';
-import { json } from 'express';
 import { SPOTIFY_BASE_URL, PLAYLIST_ID, DAY_COUNT } from './settings.js';
 
 const __dirname = path.resolve();
@@ -21,7 +19,6 @@ let app = express()
   .use(cors())
   .use(cookieParser())
   .use(json())
-  .use(favicon(__dirname + '/public/images/favicon.png'));
 
 app.get('/login', login);
 app.get('/callback', callback);
@@ -55,5 +52,3 @@ app.post('/addtotryouts', async function (req, res) {
 console.log('Launching...');
 console.log('Days:', DAY_COUNT);
 app.listen(8888);
-
-service.install();

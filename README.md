@@ -1,9 +1,11 @@
 Hello! This app uses the Spotify Developer API to retrieve new releases from ALL of your followed artists and allows you to easily add them to a desired playlist for future listening.
 
 To run the app:
-  - Create a .env file with SPOTIFY_CLIENT_ID and SPOTIFY_CLIENT_SECRET settings
-  - Update the PLAYLIST_ID variable in settings.js to the desired playlist ID
-      - This can be found by going to open.spotify.com, selected the desired playlist, and copying the latest part of the URL path
+  - Create a .env file with the following settings:
+    - SPOTIFY_CLIENT_ID
+    - SPOTIFY_CLIENT_SECRET
+    - SPOTIFY_PLAYLIST_ID
+      - This can be found by going to open.spotify.com, selecting the desired playlist, and copying the last part of the URL path
   - Run 'npm install' to retrieve and configure the required node packages
   - Run 'npm start' with an optional '--days' parameter to define how "new" the releases should be
 

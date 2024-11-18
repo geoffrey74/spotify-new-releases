@@ -1,0 +1,59 @@
+body {
+  background: #121212;
+  color: whitesmoke;
+}
+
+#page-header {
+  text-align: center;
+}
+
+#artist-image {
+  width: 320px;
+  height: 320px;
+  object-fit: cover;
+}
+
+.centered {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.loading {
+  display: block;
+  margin: auto;
+  text-align: center;
+  padding: 10px;
+}
+
+.track {
+  margin: 0;
+  padding: 0;
+}
+
+[on-tryouts] {
+  color: limegreen;
+}
+
+.main-container {
+  width: 50%;
+  margin: auto;
+}
+
+.album-art {
+  padding: 20px;
+  align-self: flex-start;
+  object-fit: none;
+}
+
+.art-tracks {
+  display: flex;
+  white-space: nowrap;
+}
+
+.track-data {
+  padding: 20px;
+  margin: auto;
+  margin-left: 0px;
+}
