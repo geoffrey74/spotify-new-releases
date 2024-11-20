@@ -1,22 +1,21 @@
 import got from 'got';
-import {SPOTIFY_BASE_URL, PLAYLIST_ID} from './settings.js';
+import * as settings from './settings.js';
 
-let TRACKS = [];
-let tryouts = PLAYLIST_ID;
+let _tracks = [];
 
 export async function getPlaylistTracks(url, token) {
   let response = await got(url, { headers: { 'Authorization': `Bearer ${token}` } });
   let tracksPage = JSON.parse(response.body);
   for (let t of tracksPage.items) {
-    TRACKS.push(t.track.uri);
+    _tracks.push(t.track.uri);
   }
   if (tracksPage.next) return getPlaylistTracks(tracksPage.next, token);
   
-  return TRACKS;
+  return _tracks;
 }
 
 export async function addTracksToPlaylist(trackIds, token) {
-  let url = `${SPOTIFY_BASE_URL}/playlists/${tryouts}/tracks`;
+  let url = `${settings.SPOTIFY_BASE_URL}/playlists/${settings.PLAYLIST_ID}/tracks`;
   var options = {
     headers: { 'Authorization': 'Bearer ' + token },
     json: { 'uris': trackIds }

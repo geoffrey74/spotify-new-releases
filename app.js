@@ -1,18 +1,17 @@
 import express from 'express';
-import {json} from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import path from 'path';
 
+import { json } from 'express';
 import { getArtists } from './artists.js';
 import { getAllReleases } from './albums.js';
 import { getPlaylistTracks, addTracksToPlaylist } from './playlists.js';
 import { login, callback } from './authentication.js';
-import { SPOTIFY_BASE_URL, PLAYLIST_ID, DAY_COUNT } from './settings.js';
+import * as settings from './settings.js';
 
 const __dirname = path.resolve();
-let ARTISTS = [];
-let TRYOUTS = PLAYLIST_ID;
+let _artists = [];
 
 let app = express()
   .use(express.static(__dirname + '/public'))
@@ -28,19 +27,19 @@ app.get('/newreleases', (req, res) => {
 });
 
 app.get('/followed_artists', async (req, res) => {
-  let url = `${SPOTIFY_BASE_URL}/me/following?type=artist&limit=50`;
+  let url = `${settings.SPOTIFY_BASE_URL}/me/following?type=artist&limit=50`;
   getArtists(url, req.cookies.auth_token)
     .then((artists) => {
-      ARTISTS = artists;
+      _artists = artists;
       res.send(artists);
     })
     .catch((error) => console.error(error));
 });
 
 app.get('/new_releases', async (req, res) => {
-  let tryoutsUrl = `${SPOTIFY_BASE_URL}/playlists/${TRYOUTS}/tracks?limit=100`;
+  let tryoutsUrl = `${settings.SPOTIFY_BASE_URL}/playlists/${settings.PLAYLIST_ID}/tracks?limit=100`;
   let tryoutsTracks = await getPlaylistTracks(tryoutsUrl, req.cookies.auth_token);
-  let newReleases = await getAllReleases(ARTISTS, tryoutsTracks, req.cookies.auth_token);
+  let newReleases = await getAllReleases(_artists, tryoutsTracks, req.cookies.auth_token);
   res.send(newReleases);
 });
 
@@ -50,5 +49,5 @@ app.post('/addtotryouts', async function (req, res) {
 });
 
 console.log('Launching...');
-console.log('Days:', DAY_COUNT);
+console.log('Days:', settings.DAY_COUNT);
 app.listen(8888);

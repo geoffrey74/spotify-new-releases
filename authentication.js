@@ -4,10 +4,10 @@ import { stringify } from 'querystring';
 
 dotenv.config();
 
-var client_id = process.env.SPOTIFY_CLIENT_ID;
-var client_secret = process.env.SPOTIFY_CLIENT_SECRET;
-var redirect_port = 8888;
-var redirect_uri = `http://localhost:${redirect_port}/callback`;
+var clientId = process.env.SPOTIFY_CLIENT_ID;
+var clientSecret = process.env.SPOTIFY_CLIENT_SECRET;
+var redirectPort = 8888;
+var redirectUri = `http://localhost:${redirectPort}/callback`;
 var stateKey = 'spotify_auth_state';
 
 var generateRandomString = function (length) {
@@ -27,9 +27,9 @@ export function login (req, res) {
     res.redirect('https://accounts.spotify.com/authorize?' +
         stringify({
             response_type: 'code',
-            client_id: client_id,
+            client_id: clientId,
             scope: scope,
-            redirect_uri: redirect_uri,
+            redirect_uri: redirectUri,
             state: state
         }));
 };
@@ -47,11 +47,11 @@ export async function callback (req, res) {
     var authOptions = {
         form: {
             code: req.query.code || null,
-            redirect_uri: redirect_uri,
+            redirect_uri: redirectUri,
             grant_type: 'authorization_code'
         },
         headers: {
-            'Authorization': 'Basic ' + (new Buffer.from(client_id + ':' + client_secret).toString('base64')),
+            'Authorization': 'Basic ' + (new Buffer.from(clientId + ':' + clientSecret).toString('base64')),
             'content-type': 'application/x-www-form-urlencoded',
         }
     };

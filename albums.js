@@ -1,11 +1,11 @@
 import got from "got";
-import { SPOTIFY_BASE_URL, DAY_COUNT } from "./settings.js";
+import * as settings from "./settings.js";
 
 export class Album {
-  constructor(id, name, release_date, artists, image, tracks) {
+  constructor(id, name, releaseDate, artists, image, tracks) {
     this.id = id;
     this.name = name;
-    this.release_date = release_date;
+    this.releaseDate = releaseDate;
     this.artists = artists;
     this.image = image;
     this.tracks = tracks;
@@ -13,52 +13,52 @@ export class Album {
 }
 
 export class Track {
-  constructor(uri, name, on_tryouts) {
+  constructor(uri, name, onTryouts) {
     this.uri = uri;
     this.name = name;
-    this.on_tryouts = on_tryouts;
+    this.onTryouts = onTryouts;
   }
 }
 
-let ALBUMS = [];
-let TRYOUTS_TRACKS = [];
+let _albums = [];
+let _tryoutsTracks = [];
 
 let dateCutoff = new Date();
-dateCutoff.setDate(dateCutoff.getDate() - DAY_COUNT);
+dateCutoff.setDate(dateCutoff.getDate() - settings.DAY_COUNT);
 
-export async function getAllReleases(artists, tryouts_tracks, token) {
-  TRYOUTS_TRACKS = tryouts_tracks;
+export async function getAllReleases(artists, tryoutsTracks, token) {
+  _tryoutsTracks = tryoutsTracks;
   let releaseTracker = [];
   for (let a of artists) {
-    let url = `${SPOTIFY_BASE_URL}/artists/${a.id}/albums?limit=20`;
+    let url = `${settings.SPOTIFY_BASE_URL}/artists/${a.id}/albums?limit=20`;
     let response = await got(url, { headers: { 'Authorization': 'Bearer ' + token } });
     for (let b of JSON.parse(response.body).items) {
       if (new Date(b.release_date) >= dateCutoff
-        && b.album_type !== 'compilation'
+        && (b.album_type !== 'compilation' || settings.INCLUDE_COMPILATIONS)
         && !releaseTracker.includes(b.id)) {
         releaseTracker.push(b.id);
         let artistNames = [];
         for (let n of b.artists) artistNames.push(n.name);
         let tracks = await getAlbumTracks(b, token);
         let release = new Album(b.id, b.name, b.release_date, artistNames.join(' / '), b.images[1]?.url, tracks);
-        ALBUMS.push(release);
+        _albums.push(release);
       }
     }
   }
-  console.log(`${ALBUMS.length} new releases available!`);
- return ALBUMS;
+  console.log(`${_albums.length} new releases available!`);
+ return _albums;
 };
 
 async function getAlbumTracks(album, token) {
   let tracks = [];
-  let url = `${SPOTIFY_BASE_URL}/albums/${album.id}/tracks?limit=50`;
+  let url = `${settings.SPOTIFY_BASE_URL}/albums/${album.id}/tracks?limit=50`;
   while (url) {
     await got(url, { headers: { 'Authorization': 'Bearer ' + token } })
       .then((response) => {
         let tracksPage = JSON.parse(response.body);
         for (let t of tracksPage.items) {
-          let on_tryouts = TRYOUTS_TRACKS.includes(t.uri);
-          let track = new Track(t.uri, t.name, on_tryouts);
+          let onTryouts = _tryoutsTracks.includes(t.uri);
+          let track = new Track(t.uri, t.name, onTryouts);
           tracks.push(track);
           url = tracksPage.next;
         }

@@ -7,7 +7,7 @@ To run the app:
     - SPOTIFY_PLAYLIST_ID
       - This can be found by going to open.spotify.com, selecting the desired playlist, and copying the last part of the URL path
   - Run 'npm install' to retrieve and configure the required node packages
-  - Run 'npm start' with an optional '--days' parameter to define how "new" the releases should be
+  - Run 'npm start' with an optional parameter to define how "new" the releases should be (in days), e.g. 'npm start 5'
 
 The app will open a new browser window or tab. If not authenticated, the user is prompted to log in using Spotify credentials (this is a one-time step unless cookies are cleared). Once authenticated, the app will cycle through images of the user's followed artists as new releases are retrieved. Depending on the number of followed artists, this process should take no longer than a few minutes.
 
