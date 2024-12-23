@@ -1,6 +1,5 @@
 import * as dotenv from 'dotenv';
 import got from 'got';
-import { stringify } from 'querystring';
 
 dotenv.config();
 
@@ -25,13 +24,13 @@ export function login (req, res) {
 
     var scope = 'user-read-private user-read-email user-library-read playlist-modify-private user-follow-read';
     res.redirect('https://accounts.spotify.com/authorize?' +
-        stringify({
+        new URLSearchParams({
             response_type: 'code',
             client_id: clientId,
             scope: scope,
             redirect_uri: redirectUri,
             state: state
-        }));
+          }));
 };
 
 export async function callback (req, res) {
