@@ -61,7 +61,7 @@ export async function callback (req, res) {
         let response = await got.post(url, authOptions);
         if (response.statusCode === 200) {
             res.cookie('auth_token', JSON.parse(response.body).access_token);
-            res.redirect('/newreleases');
+            res.redirect('/settings');
         } else {
             console.log(`Auth error: ${JSON.stringify(response.body)}`);
         }

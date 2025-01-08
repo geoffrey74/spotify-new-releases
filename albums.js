@@ -23,18 +23,18 @@ export class Track {
 let _albums = [];
 let _tryoutsTracks = [];
 
-let dateCutoff = new Date();
-dateCutoff.setDate(dateCutoff.getDate() - settings.DAY_COUNT);
-
-export async function getAllReleases(artists, tryoutsTracks, token) {
+export async function getAllReleases(artists, tryoutsTracks, dayCount, token) {
   _tryoutsTracks = tryoutsTracks;
   let releaseTracker = [];
+  let dateCutoff = new Date();
+  dateCutoff.setDate(dateCutoff.getDate() - dayCount);
+  
   for (let a of artists) {
     let url = `${settings.SPOTIFY_BASE_URL}/artists/${a.id}/albums?limit=20`;
     let response = await got(url, { headers: { 'Authorization': 'Bearer ' + token } });
     for (let b of JSON.parse(response.body).items) {
       if (new Date(b.release_date) >= dateCutoff
-        && (b.album_type !== 'compilation' || settings.INCLUDE_COMPILATIONS)
+        && (b.album_type !== 'compilation' || app.locals.includeCompilations)
         && !releaseTracker.includes(b.id)) {
         releaseTracker.push(b.id);
         let artistNames = [];

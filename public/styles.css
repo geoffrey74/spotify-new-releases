@@ -57,3 +57,30 @@ body {
   margin: auto;
   margin-left: 0px;
 }
+
+fieldset {
+  border-radius: 10px;
+  padding: 20px;
+  margin: 20px 0;
+  border-color: transparent;
+}
+
+input, button {
+  color: white;
+  border: 2px solid #077bff;
+  border-radius: 10px;
+  padding: 10px 25px;
+  background: transparent;
+  max-width: 190px;
+  height: 20px;
+  -moz-box-sizing: content-box;
+  -webkit-box-sizing: content-box;
+  box-sizing: content-box;
+}
+
+button {
+  background-color: #077bff;
+  :hover {
+    cursor: pointer;
+  }
+}
