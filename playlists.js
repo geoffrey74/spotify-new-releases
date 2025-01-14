@@ -1,5 +1,5 @@
 import got from 'got';
-import * as settings from './settings.js';
+import * as config from './config.js';
 
 let _tracks = [];
 
@@ -15,7 +15,7 @@ export async function getPlaylistTracks(url, token) {
 }
 
 export async function addTracksToPlaylist(trackIds, token) {
-  let url = `${settings.SPOTIFY_BASE_URL}/playlists/${settings.PLAYLIST_ID}/tracks`;
+  let url = `${config.SPOTIFY_BASE_URL}/playlists/${config.PLAYLIST_ID}/tracks`;
   var options = {
     headers: { 'Authorization': 'Bearer ' + token },
     json: { 'uris': trackIds }
