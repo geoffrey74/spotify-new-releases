@@ -6,7 +6,7 @@ dotenv.config();
 var clientId = process.env.SPOTIFY_CLIENT_ID;
 var clientSecret = process.env.SPOTIFY_CLIENT_SECRET;
 var redirectPort = 8888;
-var redirectUri = `http://localhost:${redirectPort}/callback`;
+var redirectUri = `http://127.0.0.1:${redirectPort}/callback`;
 var stateKey = 'spotify_auth_state';
 
 var generateRandomString = function (length) {
@@ -34,15 +34,6 @@ export function login (req, res) {
 };
 
 export async function callback (req, res) {
-    var storedState = req.cookies ? req.cookies[stateKey] : null;
-
-    if (req.query.state === null || req.query.state !== storedState) {
-        console.error('State mismatch.');
-        return;
-    }
-
-    res.clearCookie(stateKey);
-
     var authOptions = {
         form: {
             code: req.query.code || null,
