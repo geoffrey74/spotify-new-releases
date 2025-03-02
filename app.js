@@ -3,6 +3,7 @@ import path from 'path';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 
+import { getUser } from './users.js';
 import { getArtists } from './artists.js';
 import { getAllReleases } from './albums.js';
 import { getPlaylistTracks, addTracksToPlaylist } from './playlists.js';
@@ -17,6 +18,8 @@ let app = express()
   .use(cookieParser())
   .use(express.json());
 
+app.get('/favicon.ico', (req, res) => res.status(204));
+
 app.get('/login', login);
 app.get('/callback', callback);
 
@@ -28,6 +31,15 @@ let _settings = {
   days: 7,
   includeCompilations: false
 };
+
+app.get('/userdata', (req, res) => {
+  let url = `${config.SPOTIFY_BASE_URL}/me`;
+  getUser(url, req.cookies.auth_token)
+    .then((user) => {
+      res.send(user);
+    })
+    .catch((error) => console.error(error));
+});
 
 app.post('/newreleases', (req, res) => {
   _settings.days = req.body['days'];
