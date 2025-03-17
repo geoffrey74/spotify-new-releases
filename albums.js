@@ -41,6 +41,7 @@ export async function getAllReleases(artists, settings, tryoutsTracks, token) {
         for (let n of b.artists) artistNames.push(n.name);
         let tracks = await getAlbumTracks(b, token);
         let release = new Album(b.id, b.name, b.release_date, artistNames.join(' / '), b.images[1]?.url, tracks);
+        console.log(release.name);
         _albums.push(release);
       }
     }

@@ -154,11 +154,15 @@ img:not([src]) {
   font-family: var(--font);
 }
 
+.hidden {
+  display: none;
+}
+
 hr {
   border-color: var(--primary-color);
 }
 
-#album-title {
+.album-title {
   color: var(--primary-color);
 }
 

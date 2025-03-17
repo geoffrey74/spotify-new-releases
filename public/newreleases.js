@@ -5,14 +5,12 @@ async function beginPageLoad() {
 }
 
 function cycleArtistPhotos(artists) {
-    var imageElement = document.getElementById('artist-image');
-    var artistName = document.getElementById('artist-name');
     var i = 1;
     cycleImage = () => {
-        if (imageElement.attributes['loading'].value === 'true') {
+        if ($('#loader').attr('class') === 'loading') {
             if (artists[i]) {
-                imageElement.src = artists[i].image;
-                artistName.innerText = artists[i].name;
+                $('#artist-image').attr('src', artists[i].image);
+                $('#artist-name').html(artists[i].name);
             }
             if (i++ === artists.length - 1) i = 0;
         }
@@ -21,37 +19,50 @@ function cycleArtistPhotos(artists) {
     cycleImage();
 }
 
+const newReleaseContainerString = '                 \
+    <div id="new-release-container">                \
+        <hr>                                        \
+        <div class="album-data">                    \
+        <h3 class="album-title"></h3>               \
+        <h4 class="album-artists"></h4>             \
+        <h5 class="album-release-date"></h5>        \
+        <div class="art-tracks">                    \
+            <img class="album-art"/>                \
+            <div class="track-data">                \
+        </div>                                      \
+    </div>';
+
 async function loadNewReleases() {
     let newReleases = await $.ajax({ url: '/new_releases' });
 
-    let imageElement = document.getElementById('artist-image');
-    imageElement.setAttribute('loading', 'false');
+    $('#loader').attr('class', 'hidden');
 
-    let newReleasesSource = document.getElementById('new-releases-template').innerHTML,
-        newReleaseTemplate = Handlebars.compile(newReleasesSource),
-        newReleasesPlaceholder = document.getElementById('new-releases');
+    newReleases.forEach(release => {
+        let newReleaseContainer = $(newReleaseContainerString);
+        newReleaseContainer.attr('id', release.id);
+        newReleaseContainer.attr('class','new-release-container')
+        newReleaseContainer.find('.album-title').html(release.name);
+        newReleaseContainer.find('.album-artists').html(release.artists);
+        newReleaseContainer.find('.album-release-date').html(release.releaseDate);
+        newReleaseContainer.find('.album-art').attr('src', release.image);
 
-    newReleasesPlaceholder.innerHTML = newReleaseTemplate(newReleases);
-    let tracks = document.getElementsByClassName('track');
-    Array.from(tracks).forEach(track => {
-        if (track.hasAttribute('on-tryouts')) {
-            track.innerHTML = '&#x2714; ' + track.innerHTML;
-        } else {
-            track.addEventListener('click', addToTryouts);
-        }
-    });
-    let albumArts = document.getElementsByClassName('album-art');
-    Array.from(albumArts).forEach(albumArt => {
-        let trackElements = Array.from(albumArt.nextElementSibling.children);
         let tracksAlreadyAdded = 0;
-        trackElements.forEach(trackElement => {
-            if (trackElement.hasAttribute('on-tryouts')) {
+        release.tracks.forEach(track => {
+            let trackElement = $(`<p id="${track.uri}" class="track">${track.name}</p>`);
+            if (track.onTryouts) {
+                trackElement.html('&#x2714; ' + track.name);
+                trackElement.attr('on-tryouts', 'true');
                 tracksAlreadyAdded++;
+            } else {
+                trackElement.click(addToTryouts);
             }
+            newReleaseContainer.find('.track-data').append(trackElement);
         });
-        if (tracksAlreadyAdded < trackElements.length) {
-            albumArt.addEventListener('click', addToTryouts)
+        if (tracksAlreadyAdded < release.tracks.length) {
+            newReleaseContainer.find('.album-art').click(addToTryouts);
         }
+
+        $('#new-releases').append(newReleaseContainer);
     });
 }
 

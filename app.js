@@ -20,6 +20,7 @@ let app = express()
 
 app.get('/favicon.ico', (req, res) => res.status(204));
 
+app.get('/', login);
 app.get('/login', login);
 app.get('/callback', callback);
 
