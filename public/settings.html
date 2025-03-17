@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="styles.css">
+    <script src="https://code.jquery.com/jquery-latest.min.js"></script>
     <title>New Releases Settings</title>
 </head>
 
@@ -27,6 +28,11 @@
                 <div class="checkbox"></div>
             </label>
 
+            <label for="debug" id="form-section__comps">
+                Debug mode
+                <input type="checkbox" id="debug" name="debug">
+                <div class="checkbox"></div>
+            </label>
 
             <button type="submit">Get New Releases</button>
         </form>
@@ -37,10 +43,10 @@
             if (data) $('#welcome').text(`Welcome, ${data.display_name}!`);
         }));
 
-        document.getElementById("settings-form").addEventListener("submit", function (event) {
+        $("#settings-form").on("submit", function (event) {
             event.preventDefault();
             var formData = {};
-            $(this).serializeArray().map(function (x) { formData[x.name] = x.value; });
+            $(this).serializeArray().map(x => formData[x.name] = x.value);
             $.ajax({
                 url: '/newreleases',
                 type: "POST",
@@ -48,13 +54,13 @@
                 data: JSON.stringify(formData),
                 contentType: 'application/json;charset=UTF-8'
             }).done(function (data) {
-                window.location = '/newreleases';
+                console.log(formData);
+                window.location = formData["debug"] == 'on' ? '/newreleases?debug=true' : '/newreleases';
             }).fail(function (jqXHR, textStatus, errorThrown) {
                 console.log(jqXHR.responseText);
             });
         });
     </script>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
 </body>
 
 </html>

@@ -1,25 +1,7 @@
 import got from "got";
 import * as config from "./config.js";
-
-export class Album {
-  constructor(id, name, releaseDate, artists, image, tracks) {
-    this.id = id;
-    this.name = name;
-    this.releaseDate = releaseDate;
-    this.artists = artists;
-    this.image = image;
-    this.tracks = tracks;
-  }
-}
-
-export class Track {
-  constructor(uri, name, onTryouts) {
-    this.uri = uri;
-    this.name = name;
-    this.onTryouts = onTryouts;
-  }
-}
-
+import { mock_releases } from "./mocks.js";
+import { Album, Track } from "./models.js";
 let _albums = [];
 let _tryoutsTracks = [];
 
@@ -41,7 +23,6 @@ export async function getAllReleases(artists, settings, tryoutsTracks, token) {
         for (let n of b.artists) artistNames.push(n.name);
         let tracks = await getAlbumTracks(b, token);
         let release = new Album(b.id, b.name, b.release_date, artistNames.join(' / '), b.images[1]?.url, tracks);
-        console.log(release.name);
         _albums.push(release);
       }
     }
@@ -71,3 +52,7 @@ async function getAlbumTracks(album, token) {
   }
   return tracks;
 };
+
+export async function getAllMockReleases() {
+  return mock_releases;
+}

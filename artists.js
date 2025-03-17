@@ -1,12 +1,5 @@
 import got from 'got';
-
-class Artist {
-    constructor(id, name, image) {
-        this.id = id;
-        this.name = name;
-        this.image = image;
-    }
-}
+import { Artist } from './models.js';
 
 let _artists = [];
 

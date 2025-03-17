@@ -5,7 +5,7 @@ import cookieParser from 'cookie-parser';
 
 import { getUser } from './users.js';
 import { getArtists } from './artists.js';
-import { getAllReleases } from './albums.js';
+import { getAllMockReleases, getAllReleases } from './albums.js';
 import { getPlaylistTracks, addTracksToPlaylist } from './playlists.js';
 import { login, callback } from './authentication.js';
 import * as config from './config.js';
@@ -47,6 +47,7 @@ app.post('/newreleases', (req, res) => {
   _settings.includeCompilations = req.body['include-comps'] == 'on';
   console.log('Days:', _settings.days);
   console.log('Include compilations:', _settings.includeCompilations);
+  console.log('Debug:', req.body['debug'] == 'on');
   res.send(JSON.stringify('Settings saved'));
 });
 
@@ -67,10 +68,13 @@ app.get('/followed_artists', async (req, res) => {
 });
 
 app.get('/new_releases', async (req, res) => {
-  let tryoutsUrl = `${config.SPOTIFY_BASE_URL}/playlists/${config.PLAYLIST_ID}/tracks?limit=100`;
-  let tryoutsTracks = await getPlaylistTracks(tryoutsUrl, req.cookies.auth_token);
-  let newReleases = await getAllReleases(_artists, _settings, tryoutsTracks, req.cookies.auth_token);
-  res.send(newReleases);
+  if (req.query.debug) res.send(await getAllMockReleases());
+  else {
+    let tryoutsUrl = `${config.SPOTIFY_BASE_URL}/playlists/${config.PLAYLIST_ID}/tracks?limit=100`;
+    let tryoutsTracks = await getPlaylistTracks(tryoutsUrl, req.cookies.auth_token);
+    let newReleases = await getAllReleases(_artists, _settings, tryoutsTracks, req.cookies.auth_token);
+    res.send(newReleases);
+  }
 });
 
 app.post('/addtotryouts', async function (req, res) {

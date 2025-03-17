@@ -1,7 +1,11 @@
 async function beginPageLoad() {
-    let artists = await $.ajax({ url: '/followed_artists' });
-    cycleArtistPhotos(artists);
-    loadNewReleases();
+    const urlParams = new URLSearchParams(window.location.search);
+    const debug = urlParams.get('debug');
+    if (!debug) {
+        let artists = await $.ajax({ url: '/followed_artists' });
+        cycleArtistPhotos(artists);
+    }
+    loadNewReleases(debug);
 }
 
 function cycleArtistPhotos(artists) {
@@ -32,8 +36,9 @@ const newReleaseContainerString = '                 \
         </div>                                      \
     </div>';
 
-async function loadNewReleases() {
-    let newReleases = await $.ajax({ url: '/new_releases' });
+async function loadNewReleases(debug) {
+    let url = debug ? '/new_releases?debug=true' : '/new_releases';
+    let newReleases = await $.ajax({ url: url });
 
     $('#loader').attr('class', 'hidden');
 
