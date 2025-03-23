@@ -1,6 +1,6 @@
 import { Album, Track } from './models.js';
 
-export var mock_releases = [
+export const mock_releases = [
     new Album('1', 'Album 1', '2021-01-01', 'Artist 1', 'https://picsum.photos/300?random=1', 
         [
             new Track('1', 'Track 1', false),

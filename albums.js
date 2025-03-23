@@ -2,27 +2,28 @@ import got from "got";
 import * as config from "./config.js";
 import { mock_releases } from "./mocks.js";
 import { Album, Track } from "./models.js";
+
 let _albums = [];
 let _tryoutsTracks = [];
 
-export async function getAllReleases(artists, settings, tryoutsTracks, token) {
+export const getAllReleases = async (artists, settings, tryoutsTracks, token) => {
   _tryoutsTracks = tryoutsTracks;
   let releaseTracker = [];
   let dateCutoff = new Date();
   dateCutoff.setDate(dateCutoff.getDate() - settings.days);
   
-  for (let a of artists) {
-    let url = `${config.SPOTIFY_BASE_URL}/artists/${a.id}/albums?limit=20`;
-    let response = await got(url, { headers: { 'Authorization': 'Bearer ' + token } });
-    for (let b of JSON.parse(response.body).items) {
+  for (const a of artists) {
+    const url = `${config.SPOTIFY_BASE_URL}/artists/${a.id}/albums?limit=20`;
+    const response = await got(url, { headers: { 'Authorization': 'Bearer ' + token } });
+    for (const b of JSON.parse(response.body).items) {
       if (new Date(b.release_date) >= dateCutoff
         && (b.album_type !== 'compilation' || settings.includeCompilations)
         && !releaseTracker.includes(b.id)) {
         releaseTracker.push(b.id);
         let artistNames = [];
-        for (let n of b.artists) artistNames.push(n.name);
-        let tracks = await getAlbumTracks(b, token);
-        let release = new Album(b.id, b.name, b.release_date, artistNames.join(' / '), b.images[1]?.url, tracks);
+        for (const n of b.artists) artistNames.push(n.name);
+        const tracks = await getAlbumTracks(b, token);
+        const release = new Album(b.id, b.name, b.release_date, artistNames.join(' / '), b.images[1]?.url, tracks);
         _albums.push(release);
       }
     }
@@ -31,28 +32,25 @@ export async function getAllReleases(artists, settings, tryoutsTracks, token) {
  return _albums;
 };
 
-async function getAlbumTracks(album, token) {
+const getAlbumTracks = async (album, token) => {
   let tracks = [];
   let url = `${config.SPOTIFY_BASE_URL}/albums/${album.id}/tracks?limit=50`;
   while (url) {
     await got(url, { headers: { 'Authorization': 'Bearer ' + token } })
       .then((response) => {
-        let tracksPage = JSON.parse(response.body);
-        for (let t of tracksPage.items) {
-          let onTryouts = _tryoutsTracks.includes(t.uri);
-          let track = new Track(t.uri, t.name, onTryouts);
+        const tracksPage = JSON.parse(response.body);
+        for (const t of tracksPage.items) {
+          const onTryouts = _tryoutsTracks.includes(t.uri);
+          const track = new Track(t.uri, t.name, onTryouts);
           tracks.push(track);
           url = tracksPage.next;
         }
       })
-      .catch((error) => {
-        console.error(error);
-      })
-    
+      .catch((error) => console.error(error))
   }
   return tracks;
 };
 
-export async function getAllMockReleases() {
+export const getAllMockReleases = () => {
   return mock_releases;
 }

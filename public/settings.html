@@ -39,26 +39,24 @@
     </div>
 
     <script>
-        (fetch('/userdata').then(data => data.json()).then(data => {
+        (fetch('/user-data').then(data => data.json()).then(data => {
             if (data) $('#welcome').text(`Welcome, ${data.display_name}!`);
         }));
 
-        $("#settings-form").on("submit", function (event) {
+        $("#settings-form").on("submit", (event) => {
             event.preventDefault();
-            var formData = {};
-            $(this).serializeArray().map(x => formData[x.name] = x.value);
+            let formData = {};
+            $(event.currentTarget).serializeArray().map(x => formData[x.name] = x.value);
+            console.log(formData);
             $.ajax({
-                url: '/newreleases',
+                url: '/settings',
                 type: "POST",
                 dataType: 'json',
                 data: JSON.stringify(formData),
                 contentType: 'application/json;charset=UTF-8'
-            }).done(function (data) {
-                console.log(formData);
-                window.location = formData["debug"] == 'on' ? '/newreleases?debug=true' : '/newreleases';
-            }).fail(function (jqXHR, textStatus, errorThrown) {
-                console.log(jqXHR.responseText);
-            });
+            })
+                .done((data) => window.location = formData["debug"] == 'on' ? '/?debug=true' : '/')
+                .fail((jqXHR, textStatus, errorThrown) => console.log(jqXHR.responseText));
         });
     </script>
 </body>

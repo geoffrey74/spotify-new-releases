@@ -2,83 +2,69 @@ import express from 'express';
 import path from 'path';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
+import * as config from './config.js';
 
 import { getUser } from './users.js';
 import { getArtists } from './artists.js';
 import { getAllMockReleases, getAllReleases } from './albums.js';
 import { getPlaylistTracks, addTracksToPlaylist } from './playlists.js';
 import { login, callback } from './authentication.js';
-import * as config from './config.js';
 
 const __dirname = path.resolve();
 
-let app = express()
+const app = express()
   .use(express.static(__dirname + '/public'))
   .use(cors())
   .use(cookieParser())
   .use(express.json());
 
-app.get('/favicon.ico', (req, res) => res.status(204));
+app.get('/favicon.ico', (_req, res) => res.status(204));
 
-app.get('/', login);
 app.get('/login', login);
 app.get('/callback', callback);
 
-app.get('/settings', (req, res) => {
+app.get('/user-data', (req, res) => {
+  res.send(getUser(`${config.SPOTIFY_BASE_URL}/me`, req.cookies.auth_token));
+});
+
+app.get('/settings', (_req, res) => {
   res.sendFile(__dirname + '/public/settings.html');
 });
 
-let _settings = {
-  days: 7,
-  includeCompilations: false
-};
-
-app.get('/userdata', (req, res) => {
-  let url = `${config.SPOTIFY_BASE_URL}/me`;
-  getUser(url, req.cookies.auth_token)
-    .then((user) => {
-      res.send(user);
-    })
-    .catch((error) => console.error(error));
-});
-
-app.post('/newreleases', (req, res) => {
-  _settings.days = req.body['days'];
-  _settings.includeCompilations = req.body['include-comps'] == 'on';
-  console.log('Days:', _settings.days);
-  console.log('Include compilations:', _settings.includeCompilations);
-  console.log('Debug:', req.body['debug'] == 'on');
+app.post('/settings', (req, res) => {
+  app.locals.settings = {
+    days: req.body['days'],
+    includeCompilations: req.body['include-comps'] == 'on',
+    debug: req.body['debug'] == 'on'
+  };
+  console.log('Settings', app.locals.settings);
   res.send(JSON.stringify('Settings saved'));
 });
 
-app.get('/newreleases', (req, res) => {
+app.get('/', (_req, res) => {
   res.sendFile(__dirname + '/public/newreleases.html');
 });
 
-let _artists = [];
-
-app.get('/followed_artists', async (req, res) => {
-  let url = `${config.SPOTIFY_BASE_URL}/me/following?type=artist&limit=50`;
-  getArtists(url, req.cookies.auth_token)
+app.get('/followed-artists', async (req, res) => {
+  getArtists(`${config.SPOTIFY_BASE_URL}/me/following?type=artist&limit=50`, req.cookies.auth_token)
     .then((artists) => {
-      _artists = artists;
+      app.locals.artists = artists;
       res.send(artists);
     })
     .catch((error) => console.error(error));
 });
 
-app.get('/new_releases', async (req, res) => {
+app.get('/new-releases', async (req, res) => {
   if (req.query.debug) res.send(await getAllMockReleases());
   else {
-    let tryoutsUrl = `${config.SPOTIFY_BASE_URL}/playlists/${config.PLAYLIST_ID}/tracks?limit=100`;
-    let tryoutsTracks = await getPlaylistTracks(tryoutsUrl, req.cookies.auth_token);
-    let newReleases = await getAllReleases(_artists, _settings, tryoutsTracks, req.cookies.auth_token);
-    res.send(newReleases);
+    const tryoutsUrl = `${config.SPOTIFY_BASE_URL}/playlists/${config.PLAYLIST_ID}/tracks?limit=100`;
+    const tryoutsTracks = await getPlaylistTracks(tryoutsUrl, req.cookies.auth_token);
+    res.send(await getAllReleases(app.locals.artists, app.locals.settings, tryoutsTracks, req.cookies.auth_token));
   }
 });
 
-app.post('/addtotryouts', async function (req, res) {
-  var response = await addTracksToPlaylist(req.body.trackUris, req.cookies.auth_token);
+app.post('/tryouts', async (req, res) => {
+  const response = await addTracksToPlaylist(req.body.trackUris, req.cookies.auth_token);
   res.send(response);
 });
 

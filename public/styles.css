@@ -139,6 +139,7 @@ img:not([src]) {
 .track {
   margin: 0;
   padding: 0;
+  font-size: 15px;
 }
 
 [on-tryouts] {
@@ -162,14 +163,19 @@ hr {
   border-color: var(--primary-color);
 }
 
-.album-title {
+.album-header {
+  margin: 5px 0 5px 0;
+}
+
+.title {
   color: var(--primary-color);
 }
 
 .album-art {
+  height: 200px;
+  width: 200px;
   padding: 20px;
   align-self: flex-start;
-  object-fit: none;
 }
 
 .art-tracks {

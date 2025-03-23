@@ -14,6 +14,11 @@
     "querystring": "~0.2.0"
   },
   "scripts": {
-    "start": "start http://localhost:8888 & node app.js"
+    "start": "start http://localhost:8888/login & node app.js"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.23.0",
+    "eslint": "^9.23.0",
+    "globals": "^16.0.0"
   }
 }
