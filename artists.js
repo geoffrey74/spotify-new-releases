@@ -10,8 +10,8 @@ export const getArtists = async (url, token) => {
         const img = (a.images !== 'undefined' && a.images.length > 1) ? a.images[1].url : "";
         _artists.push(new Artist(a.id, a.name, img));
     }
-    //if (artistsPage.next) return getArtists(artistsPage.next, token);
-    //else console.log(`Artist count: ${_artists.length}`);
+    if (artistsPage.next) return getArtists(artistsPage.next, token);
+    else console.log(`Artist count: ${_artists.length}`);
     
     return _artists;
 }
